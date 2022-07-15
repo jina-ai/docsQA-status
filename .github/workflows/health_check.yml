@@ -28,11 +28,14 @@ jobs:
       - name: Run Healthy Check
         run: |
           cd docsQA-status
-          python app.py
           git config --local user.email "dev-bot@jina.ai"
           git config --local user.name "Jina Dev Bot"
           git config pull.rebase true
+          python app.py
+          cp README.md README.md.1
+          git stash
           git pull origin gh-pages && git checkout gh-pages
+          mv README.md.1 README.md
           git add README.md && git commit -m "chore(docs): health check"
           git push --force origin gh-pages
         env:
