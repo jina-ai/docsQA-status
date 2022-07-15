@@ -31,7 +31,7 @@ jobs:
           python app.py
           git config --local user.email "dev-bot@jina.ai"
           git config --local user.name "Jina Dev Bot"
-          git pull && git checkout gh-pages
+          git pull origin gh-pages && git checkout gh-pages
           git add README.md && git commit -m "chore(docs): health check"
           git push --force origin gh-pages
         env:
