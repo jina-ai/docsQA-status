@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        default: master
+        default: main
   schedule:
     - cron: "3 * * * *"   # runs at 6AM UTC (mon-fri)
   pull_request:             # uncomment this if you want to run nightly tests in your PR
@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.branch }}
-        path: docsQA-status
+          path: docsQA-status
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
