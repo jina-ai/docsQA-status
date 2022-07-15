@@ -39,7 +39,7 @@ header = {
 }
 
 
-async def main():
+async def get_project_list():
     async with aiohttp.ClientSession() as session:
         async with session.get('https://apidocsqa.jina.ai/projects', headers=header) as resp:
             json_body = await resp.json()
@@ -70,6 +70,8 @@ async def _health_check(project, session):
             if matches is None:
                 print(f'{project.host} empty matches: {json_body}')
             project.status = Status.AVAILABLE if matches else Status.UNAVAILABLE
+            # TODO: add the status to the history
+            # project.history.append(HealthCheckEvent(ctime=project.last_time, project.status))
             return project
     except ClientConnectorError as e:
         print(f'failed to connect to {project.host}, {e}')
@@ -121,9 +123,11 @@ def write_to_markdown(projects):
 
 
 def entrypoint():
+    # TODO: load the data.json()
+
     # GET request to retrieve the project list
     loop = asyncio.get_event_loop()
-    projects = loop.run_until_complete(main())
+    projects = loop.run_until_complete(get_project_list())
     projects_list = []
     for p in projects:
         if p is None:
@@ -141,6 +145,8 @@ def entrypoint():
 
     result = loop.run_until_complete(total_future)
     write_to_markdown(result)
+
+    # TODO: Store the results into data.json
 
 
 if __name__ == '__main__':
