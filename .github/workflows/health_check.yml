@@ -27,6 +27,7 @@ jobs:
           DOCSQA_ADMIN_TOKEN: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
       - name: Update README
         run: |
+          cd docsQA-status
           git config --local user.email "dev-bot@jina.ai"
           git config --local user.name "Jina Dev Bot"
           git add README.md && git commit -m "chore(docs): health check"
