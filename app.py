@@ -134,7 +134,7 @@ def entrypoint():
             print(f'skip {project}')
             continue
         if p['status'] != 'PUBLISHED':
-            print(f'{p["name"]} is not published')
+            print(f'{p["name"]} is not published but is {p["status"]}')
             continue
         project = Project(repo=p['repo'], name=p['name'], host=f'https://{p["name"]}.docsqa.jina.ai')
         if project.host is None:
