@@ -33,3 +33,5 @@ jobs:
           git config --local user.name "Jina Dev Bot"
           git add README.md && git commit -m "chore(docs): health check"
           git push --force origin gh-pages
+        env:
+          DOCSQA_ADMIN_TOKEN: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
