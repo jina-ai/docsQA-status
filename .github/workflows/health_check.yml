@@ -25,9 +25,10 @@ jobs:
           pip install -r docsQA-status/requirements.txt
         env:
           DOCSQA_ADMIN_TOKEN: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
-      - name: Update README
+      - name: Run Healthy Check
         run: |
           cd docsQA-status
+          python app.py
           git config --local user.email "dev-bot@jina.ai"
           git config --local user.name "Jina Dev Bot"
           git add README.md && git commit -m "chore(docs): health check"
