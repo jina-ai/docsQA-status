@@ -1,0 +1,33 @@
+name: Hourly Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        default: master
+  schedule:
+    - cron: "3 * * * *"   # runs at 6AM UTC (mon-fri)
+  pull_request:             # uncomment this if you want to run nightly tests in your PR
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+        path: docsQA-status
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install requirements
+        run: |
+          pip install -r docsQA-status/requirements.txt
+        env:
+          DOCSQA_ADMIN_TOKEN: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
+      - name: Update README
+        run: |
+          git config --local user.email "dev-bot@jina.ai"
+          git config --local user.name "Jina Dev Bot"
+          git add README.md && git commit -m "chore(docs): health check"
+          git push --force origin gh-pages
