@@ -2,12 +2,9 @@ name: Hourly Tests
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        default: main
   schedule:
     - cron: "3 * * * *"   # runs at 6AM UTC (mon-fri)
-  pull_request:             # uncomment this if you want to run nightly tests in your PR
+#  pull_request:             # uncomment this if you want to run nightly tests in your PR
 
 jobs:
   health-check:
@@ -15,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.branch }}
+#          ref: ${{ github.event.inputs.branch }}
           path: docsQA-status
       - uses: actions/setup-python@v2
         with:
