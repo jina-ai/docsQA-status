@@ -110,15 +110,18 @@ def write_to_markdown(projects):
             p.last_dtime.isoformat() if p.last_dtime is not None else 'None'
         ])
 
+    table_header = 'DocsQA Status'
     # collect the data and write into a table
     writer = MarkdownTableWriter(
-        table_name="DocsQA Status",
+        table_name=table_header,
         headers=['project', 'Current Status', 'Last Check', 'Last Downtime'],
         value_matrix=_matrix,
+        flavor='github'
     )
     # output the table into output.md
     with open('output.md', 'w') as f:
         output = writer.dumps()
+        output = output.replace(f'{table_header}', f'{table_header}\n')
         f.write(output)
 
 
