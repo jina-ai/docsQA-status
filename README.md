@@ -2,24 +2,24 @@
 
 |          project          |Current Status|        Last Check        |      Last Downtime       |
 |---------------------------|--------------|--------------------------|--------------------------|
-|jina-ai/jina               |✅            |2022-07-16T17:10:14.946472|None                      |
-|jina-ai/finetuner          |✅            |2022-07-16T17:10:34.240972|None                      |
-|tiangolo/fastapi           |✅            |2022-07-16T17:11:17.595322|None                      |
-|tiangolo/typer             |✅            |2022-07-16T17:12:44.971120|None                      |
-|tiangolo/sqlmodel          |✅            |2022-07-16T17:12:58.266360|None                      |
-|jina-ai/docarray           |⛔️           |2022-07-16T17:09:51.796548|2022-07-16T17:09:51.796532|
-|coqui-ai/TTS               |✅            |2022-07-16T17:10:45.403290|None                      |
-|coqui-ai/STT               |✅            |2022-07-16T17:13:16.328576|None                      |
-|insideout10/wordlift-docs  |✅            |2022-07-16T17:13:43.692169|None                      |
-|kornia/kornia              |✅            |2022-07-16T17:11:26.600718|None                      |
-|nan-wang/docarray          |⛔️           |2022-07-16T17:12:44.938537|None                      |
-|jina-ai/clip-as-service    |⛔️           |2022-07-16T17:09:51.999173|2022-07-16T17:09:51.999156|
-|shazhou2015/clip-as-service|✅            |2022-07-16T17:12:17.583358|None                      |
-|garbles-dev/whitepaper     |✅            |2022-07-16T17:14:09.225614|None                      |
-|jina-ai/now                |✅            |2022-07-16T17:13:53.873372|None                      |
-|fogx/jina                  |✅            |2022-07-16T17:11:38.085839|None                      |
-|shan-mx/xiaohu-ai          |⛔️           |2022-07-16T17:12:17.538268|None                      |
-|alt-shreya/jina            |✅            |2022-07-16T17:13:28.638912|None                      |
-|wj-Mcat/python-wechaty     |✅            |2022-07-16T17:11:56.106063|None                      |
-|kivy/kivy                  |✅            |2022-07-16T17:11:26.575784|None                      |
-|fogx/dalle-flow            |✅            |2022-07-16T17:12:31.045076|None                      |
+|jina-ai/jina               |✅            |2022-07-16T18:10:34.268642|None                      |
+|jina-ai/finetuner          |✅            |2022-07-16T18:10:53.529467|None                      |
+|tiangolo/fastapi           |✅            |2022-07-16T18:11:36.146130|None                      |
+|tiangolo/typer             |✅            |2022-07-16T18:13:03.676730|None                      |
+|tiangolo/sqlmodel          |✅            |2022-07-16T18:13:17.095946|None                      |
+|jina-ai/docarray           |⛔️           |2022-07-16T18:10:11.062690|2022-07-16T18:10:11.062677|
+|coqui-ai/TTS               |✅            |2022-07-16T18:11:04.435233|None                      |
+|coqui-ai/STT               |✅            |2022-07-16T18:14:00.182141|None                      |
+|insideout10/wordlift-docs  |✅            |2022-07-16T18:13:31.874302|None                      |
+|kornia/kornia              |✅            |2022-07-16T18:11:45.533594|None                      |
+|nan-wang/docarray          |⛔️           |2022-07-16T18:13:03.597739|None                      |
+|jina-ai/clip-as-service    |⛔️           |2022-07-16T18:10:11.147322|2022-07-16T18:10:11.147308|
+|shazhou2015/clip-as-service|✅            |2022-07-16T18:12:36.401333|None                      |
+|garbles-dev/whitepaper     |✅            |2022-07-16T18:14:15.582524|None                      |
+|jina-ai/now                |✅            |2022-07-16T18:13:41.959230|None                      |
+|fogx/jina                  |✅            |2022-07-16T18:11:56.906503|None                      |
+|shan-mx/xiaohu-ai          |⛔️           |2022-07-16T18:12:36.302394|None                      |
+|alt-shreya/jina            |✅            |2022-07-16T18:14:27.716230|None                      |
+|wj-Mcat/python-wechaty     |✅            |2022-07-16T18:12:15.023850|None                      |
+|kivy/kivy                  |✅            |2022-07-16T18:11:56.825478|None                      |
+|fogx/dalle-flow            |✅            |2022-07-16T18:12:49.962806|None                      |
