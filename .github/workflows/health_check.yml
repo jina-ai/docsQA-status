@@ -32,6 +32,7 @@ jobs:
           git config --local user.name "Jina Dev Bot"
           git config pull.rebase true
           python app.py
+          git fetch
           git checkout -f gh-pages
           mv output.md README.md
           git add README.md && git commit -m "chore(docs): health check"
