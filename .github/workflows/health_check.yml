@@ -2,12 +2,25 @@ name: Hourly Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      release_token:
+        description: 'Your release token'
+        required: true
   schedule:
     - cron: "3 * * * *"   # runs at 6AM UTC (mon-fri)
 #  pull_request:             # uncomment this if you want to run nightly tests in your PR
 
 jobs:
+  token-check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "success!"
+        if: "${{ github.event.inputs.release_token }} == ${{ env.release_token }}"
+        env:
+          release_token: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
+
   health-check:
+    needs: token-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
