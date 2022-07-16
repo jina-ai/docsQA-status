@@ -117,7 +117,7 @@ def write_to_markdown(projects):
         value_matrix=_matrix,
     )
     # output the table into output.md
-    with open('README.md', 'w') as f:
+    with open('output.md', 'w') as f:
         output = writer.dumps()
         f.write(output)
 
