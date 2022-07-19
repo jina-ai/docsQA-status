@@ -1,3 +1,4 @@
+from pathlib import Path
 import asyncio
 import json
 import os
@@ -39,6 +40,7 @@ class ProjectJSONEncoder(json.JSONEncoder):
             return super().default(obj)
 
         proj = asdict(obj)
+        print(proj['status'])
         proj['last_utime'] = proj['last_utime'] and proj['last_utime'].isoformat()
         proj['last_dtime'] = proj['last_dtime'] and proj['last_dtime'].isoformat()
         proj['history'] = [
@@ -139,9 +141,6 @@ async def health_check(projects_list):
 
 def write_to_markdown(projects):
     _matrix = []
-    with open('data.json', 'w') as f:
-        json.dump(projects, f, cls=ProjectJSONEncoder)
-
     for p in projects:
         if p is None:
             continue
@@ -168,16 +167,20 @@ def write_to_markdown(projects):
 
 
 def entrypoint():
-    # TODO: load the data.json()
+    data_path = os.environ.get('DATA_PATH', 'data.json')
+    if Path(data_path).exists():
+        with open(data_path, 'r') as f:
+            stored_projects = {
+                proj.repo: proj for proj in json.load(f, cls=ProjectJSONDecoder)
+            }
+            print(stored_projects)
+    else:
+        stored_projects = {}
 
     # GET request to retrieve the project list
     loop = asyncio.get_event_loop()
     projects = loop.run_until_complete(get_project_list())
     projects_list = []
-    with open('data.json', 'r') as f:
-        stored_projects = {
-            proj.repo: proj for proj in json.load(f, cls=ProjectJSONDecoder)
-        }
     for p in projects:
         if p is None:
             print(f'skip {project}')
@@ -199,6 +202,9 @@ def entrypoint():
     write_to_markdown(result)
 
     # TODO: Store the results into data.json
+    with open(data_path, 'w') as f:
+        json.dump(result, f, cls=ProjectJSONEncoder)
+
 
 
 if __name__ == '__main__':
