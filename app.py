@@ -1,7 +1,8 @@
+from pathlib import Path
 import asyncio
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict, field
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
@@ -30,7 +31,48 @@ class Project:
     status: Status = Status.AVAILABLE
     last_utime: datetime = datetime.now()  # last health check time
     last_dtime: Optional[datetime] = None  # last down time
-    history: Optional[List[HealthCheckEvent]] = None
+    history: List[HealthCheckEvent] = field(default_factory=lambda: [])
+
+
+class ProjectJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if not isinstance(obj, Project):
+            return super().default(obj)
+
+        proj = asdict(obj)
+        print(proj['status'])
+        proj['last_utime'] = proj['last_utime'] and proj['last_utime'].isoformat()
+        proj['last_dtime'] = proj['last_dtime'] and proj['last_dtime'].isoformat()
+        proj['history'] = [
+            self._healthcheck_event_default(his) for his in proj['history']
+        ]
+        return proj
+
+    def _healthcheck_event_default(self, obj):
+        obj['ctime'] = obj['ctime'].isoformat()
+        return obj
+
+
+class ProjectJSONDecoder(json.JSONDecoder):
+    def decode(self, s):
+        objs = super().decode(s)
+        projects = []
+        for obj in objs:
+            obj['status'] = Status(obj['status'])
+            obj['last_utime'] = datetime.fromisoformat(obj['last_utime'])
+            if isinstance(obj, datetime):
+                obj['last_dtime'] = datetime.fromisoformat(obj['last_dtime'])
+            obj['history'] = obj['history'] and [
+                self._healthcheck_event_decode(his) for his in obj['history']
+            ]
+            projects.append(Project(**obj))
+        return projects
+
+    def _healthcheck_event_decode(self, obj):
+        obj['ctime'] = datetime.fromisoformat(obj['ctime'])
+        obj['status'] = Status(obj['status'])
+        return HealthCheckEvent(**obj)
+
 
 
 header = {
@@ -70,8 +112,7 @@ async def _health_check(project, session):
             if matches is None:
                 print(f'{project.host} empty matches: {json_body}')
             project.status = Status.AVAILABLE if matches else Status.UNAVAILABLE
-            # TODO: add the status to the history
-            # project.history.append(HealthCheckEvent(ctime=project.last_time, project.status))
+            project.history.append(HealthCheckEvent(ctime=datetime.now(), status=project.status))
             return project
     except ClientConnectorError as e:
         print(f'failed to connect to {project.host}, {e}')
@@ -126,7 +167,15 @@ def write_to_markdown(projects):
 
 
 def entrypoint():
-    # TODO: load the data.json()
+    data_path = os.environ.get('DATA_PATH', 'data.json')
+    if Path(data_path).exists():
+        with open(data_path, 'r') as f:
+            stored_projects = {
+                proj.repo: proj for proj in json.load(f, cls=ProjectJSONDecoder)
+            }
+            print(stored_projects)
+    else:
+        stored_projects = {}
 
     # GET request to retrieve the project list
     loop = asyncio.get_event_loop()
@@ -139,7 +188,10 @@ def entrypoint():
         if p['status'] != 'PUBLISHED':
             print(f'{p["name"]} is not published but is {p["status"]}')
             continue
-        project = Project(repo=p['repo'], name=p['name'], host=f'https://{p["name"]}.docsqa.jina.ai')
+        if p['repo'] in stored_projects:
+            project = stored_projects[p['repo']]
+        else:
+            project = Project(repo=p['repo'], name=p['name'], host=f'https://{p["name"]}.docsqa.jina.ai')
         if project.host is None:
             print(f'skip {project}')
             continue
@@ -149,7 +201,9 @@ def entrypoint():
     result = loop.run_until_complete(total_future)
     write_to_markdown(result)
 
-    # TODO: Store the results into data.json
+    with open(data_path, 'w') as f:
+        json.dump(result, f, cls=ProjectJSONEncoder)
+
 
 
 if __name__ == '__main__':
