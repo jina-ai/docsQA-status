@@ -201,7 +201,6 @@ def entrypoint():
     result = loop.run_until_complete(total_future)
     write_to_markdown(result)
 
-    # TODO: Store the results into data.json
     with open(data_path, 'w') as f:
         json.dump(result, f, cls=ProjectJSONEncoder)
 
