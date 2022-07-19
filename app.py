@@ -88,14 +88,15 @@ async def health_check(projects_list):
         'User-Agent': 'aiohttp client 0.17'
     }
 
+    results = []
     async with aiohttp.ClientSession(headers=custom_headers) as session:
         # For each project put it into a task queue
         for project in projects_list:
             # send POST request to /search endpoint for each project
-            task = asyncio.ensure_future(_health_check(project, session))
-            tasks.append(task)
-        result = await asyncio.gather(*tasks)
-        return result
+            result = await _health_check(project, session)
+            results.append(result)
+            await asyncio.sleep(1)
+        return results
 
 
 def write_to_markdown(projects):
