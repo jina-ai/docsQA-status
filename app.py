@@ -31,7 +31,7 @@ class Project:
     host: str
     uptime: int = 0
     status: Status = Status.AVAILABLE
-    ctime: datetime = datetime.now()
+    ctime: datetime = datetime.now()  # first health check time
     last_utime: datetime = datetime.now()  # last health check time
     last_dtime: Optional[datetime] = None  # last down time
     history: List[HealthCheckEvent] = field(default_factory=lambda: [])

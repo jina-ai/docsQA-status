@@ -1,12 +1,13 @@
 import json
 import os
 from datetime import datetime
+from datetime import timedelta
 from unittest import mock
 
 import pytest
 from aioresponses import aioresponses
 
-from app import Project, ProjectJSONEncoder, ProjectJSONDecoder, Status, HealthCheckEvent, entrypoint
+from app import Project, ProjectJSONEncoder, ProjectJSONDecoder, Status, HealthCheckEvent, entrypoint, calculate_uptime
 
 
 @pytest.mark.parametrize('dtime', ['2022-07-20T07:27:38.720774', None])
@@ -61,3 +62,19 @@ def test_entrypoint(tmp_env):
         data = json.load(f)
         assert all(len(proj['history']) == 2 for proj in data)
     print(os.environ['DATA_PATH'])
+
+
+@pytest.mark.parametrize('days', [1, 2, 3])
+def test_calculate_uptime(days):
+    ctime = datetime.fromisoformat('2022-07-19T07:27:38.720774')
+    utime = ctime + timedelta(days=days)
+    project = Project(
+        repo='repo',
+        name='name',
+        host='host',
+        status=Status.UNAVAILABLE,
+        ctime=ctime,
+        last_utime=utime,
+        uptime=22
+    )
+    assert calculate_uptime(project) == 22 * 100 / (days * 24)
