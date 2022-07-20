@@ -60,7 +60,7 @@ class ProjectJSONDecoder(json.JSONDecoder):
         for obj in objs:
             obj['status'] = Status(obj['status'])
             obj['last_utime'] = datetime.fromisoformat(obj['last_utime'])
-            if isinstance(obj, datetime):
+            if isinstance(obj['last_dtime'], str):
                 obj['last_dtime'] = datetime.fromisoformat(obj['last_dtime'])
             obj['history'] = obj['history'] and [
                 self._healthcheck_event_decode(his) for his in obj['history']
