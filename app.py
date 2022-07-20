@@ -1,3 +1,4 @@
+import math
 from pathlib import Path
 import asyncio
 import json
@@ -28,7 +29,9 @@ class Project:
     repo: str
     name: str
     host: str
+    uptime: int = 0
     status: Status = Status.AVAILABLE
+    ctime: datetime = datetime.now()  # first health check time
     last_utime: datetime = datetime.now()  # last health check time
     last_dtime: Optional[datetime] = None  # last down time
     history: List[HealthCheckEvent] = field(default_factory=lambda: [])
@@ -42,6 +45,7 @@ class ProjectJSONEncoder(json.JSONEncoder):
         proj = asdict(obj)
         print(proj['status'])
         proj['last_utime'] = proj['last_utime'] and proj['last_utime'].isoformat()
+        proj['ctime'] = proj['ctime'] and proj['ctime'].isoformat()
         proj['last_dtime'] = proj['last_dtime'] and proj['last_dtime'].isoformat()
         proj['history'] = [
             self._healthcheck_event_default(his) for his in proj['history']
@@ -59,6 +63,7 @@ class ProjectJSONDecoder(json.JSONDecoder):
         projects = []
         for obj in objs:
             obj['status'] = Status(obj['status'])
+            obj['ctime'] = datetime.fromisoformat(obj['ctime'])
             obj['last_utime'] = datetime.fromisoformat(obj['last_utime'])
             if isinstance(obj['last_dtime'], str):
                 obj['last_dtime'] = datetime.fromisoformat(obj['last_dtime'])
@@ -112,7 +117,8 @@ async def _health_check(project, session):
             if matches is None:
                 print(f'{project.host} empty matches: {json_body}')
             project.status = Status.AVAILABLE if matches else Status.UNAVAILABLE
-            project.history.append(HealthCheckEvent(ctime=datetime.now(), status=project.status))
+            if project.status == Status.AVAILABLE:
+                project.uptime += 1
             return project
     except ClientConnectorError as e:
         print(f'failed to connect to {project.host}, {e}')
@@ -120,6 +126,7 @@ async def _health_check(project, session):
         project.last_dtime = datetime.now()
     finally:
         project.last_utime = datetime.now()
+        project.history.append(HealthCheckEvent(ctime=datetime.now(), status=project.status))
         return project
 
 
@@ -140,6 +147,11 @@ async def health_check(projects_list):
         return results
 
 
+def calculate_uptime(project):
+    time_elapsed_in_hours = math.ceil((project.last_utime - project.ctime).total_seconds() / (60 * 60))
+    return project.uptime * 100 / time_elapsed_in_hours
+
+
 def write_to_markdown(projects):
     _matrix = []
     for p in projects:
@@ -149,14 +161,15 @@ def write_to_markdown(projects):
             p.repo,
             '✅' if p.status == Status.AVAILABLE else '⛔️',
             p.last_utime.isoformat(),
-            p.last_dtime.isoformat() if p.last_dtime is not None else 'None'
+            p.last_dtime.isoformat() if p.last_dtime is not None else 'None',
+            f'{calculate_uptime(p)} (since {p.ctime})'
         ])
 
     table_header = 'DocsQA Status'
     # collect the data and write into a table
     writer = MarkdownTableWriter(
         table_name=table_header,
-        headers=['project', 'Current Status', 'Last Check', 'Last Downtime'],
+        headers=['project', 'Current Status', 'Last Check', 'Last Downtime', '% Uptime'],
         value_matrix=_matrix,
         flavor='github'
     )
