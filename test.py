@@ -9,13 +9,15 @@ from aioresponses import aioresponses
 from app import Project, ProjectJSONEncoder, ProjectJSONDecoder, Status, HealthCheckEvent, entrypoint
 
 
-def test_projects_encode_decode(tmp_path):
+@pytest.mark.parametrize('dtime', ['2022-07-20T07:27:38.720774', None])
+def test_projects_encode_decode(tmp_path, dtime):
     projects = [
         Project(
             repo='repo',
             name='name',
             host='host',
             status=Status.UNAVAILABLE,
+            last_dtime=datetime.fromisoformat(dtime) if isinstance(dtime, str) else None,
             history=[HealthCheckEvent(ctime=datetime.now(), status=Status.AVAILABLE)]
         )
     ]
