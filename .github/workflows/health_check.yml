@@ -42,7 +42,7 @@ jobs:
           git config --local user.email "dev-bot@jina.ai"
           git config --local user.name "Jina Dev Bot"
           git config pull.rebase true
-          python app.py
+          echo "::set-output name=HEALTH_CHECK_FAILED::$(python app.py | tail -n1)"
           git fetch
           git add data.json && git commit -m "chore(docs): health check"
           git push --force
@@ -52,10 +52,12 @@ jobs:
           git push --force origin gh-pages
         env:
           DOCSQA_ADMIN_TOKEN: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
-      - if: steps.run-health-check.outputs.HEALTH_CHECK_FAILED == 'true'
+      - if: steps.run-health-check.outputs.HEALTH_CHECK_FAILED == 'True'
         uses: 8398a7/action-slack@v3
         with:
           status: failure
           text: |
-            :no_entry: DocsQA services health check failed
+            :no_entry: DocsQA services health check failed, see www.jina.ai/docsQA-status for details
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.DOCSQA_PR_NOTIFICATION_SLACK_HOOK }}
 

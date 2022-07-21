@@ -221,11 +221,15 @@ def entrypoint():
     result = loop.run_until_complete(total_future)
     write_to_markdown(result)
 
-    if health_check_failed:
-        print('::set-output name=HEALTH_CHECK_FAILED::true')
-
     with open(data_path, 'w') as f:
         json.dump(result, f, cls=ProjectJSONEncoder)
+
+    global health_check_failed
+    # TODO: following line is only for testing, to be removed
+    health_check_failed = True
+
+    print(health_check_failed)
+
 
 
 
