@@ -13,6 +13,9 @@ from aiohttp.client_exceptions import ClientConnectorError
 from pytablewriter import MarkdownTableWriter
 
 
+health_check_failed = False
+
+
 class Status(str, Enum):
     AVAILABLE = 'AVAILABLE'
     UNAVAILABLE = 'UNAVAILABLE'
@@ -124,6 +127,9 @@ async def _health_check(project, session):
     finally:
         project.last_utime = datetime.now()
         project.history.append(HealthCheckEvent(ctime=datetime.now(), status=project.status))
+        if project.status == Status.UNAVAILABLE:
+            global health_check_failed
+            health_check_failed = True
         return project
 
 
@@ -222,6 +228,10 @@ def entrypoint():
 
     with open(data_path, 'w') as f:
         json.dump(result, f, cls=ProjectJSONEncoder)
+
+    global health_check_failed
+    print(health_check_failed)
+
 
 
 
