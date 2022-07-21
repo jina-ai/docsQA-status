@@ -75,6 +75,26 @@ def test_calculate_uptime(days):
         status=Status.UNAVAILABLE,
         ctime=ctime,
         last_utime=utime,
-        uptime=22
+        history=[
+            HealthCheckEvent(ctime=ctime+timedelta(hours=1+i), status=Status.AVAILABLE if i%2==0 else Status.UNAVAILABLE) for i in range(6)
+        ]
     )
-    assert calculate_uptime(project) == 22 * 100 / (days * 24)
+    assert calculate_uptime(project) == 50
+
+
+def test_calculate_uptime_overflow():
+    ctime = datetime.fromisoformat('2022-07-20T17:11:38.421227')
+    utime = datetime.fromisoformat('2022-07-21T06:10:52.922811')
+    project = Project(
+        repo='repo',
+        name='name',
+        host='host',
+        status=Status.UNAVAILABLE,
+        ctime=ctime,
+        last_utime=utime,
+        history=[
+            HealthCheckEvent(ctime=ctime+timedelta(hours=1+i), status=Status.AVAILABLE if i%2==0 else Status.UNAVAILABLE) for i in range(6)
+        ]
+    )
+    result = calculate_uptime(project)
+    assert result == 50

@@ -29,7 +29,6 @@ class Project:
     repo: str
     name: str
     host: str
-    uptime: int = 0
     status: Status = Status.AVAILABLE
     ctime: datetime = datetime.now()  # first health check time
     last_utime: datetime = datetime.now()  # last health check time
@@ -117,8 +116,6 @@ async def _health_check(project, session):
             if matches is None:
                 print(f'{project.host} empty matches: {json_body}')
             project.status = Status.AVAILABLE if matches else Status.UNAVAILABLE
-            if project.status == Status.AVAILABLE:
-                project.uptime += 1
             return project
     except ClientConnectorError as e:
         print(f'failed to connect to {project.host}, {e}')
@@ -148,8 +145,16 @@ async def health_check(projects_list):
 
 
 def calculate_uptime(project):
-    time_elapsed_in_hours = math.ceil((project.last_utime - project.ctime).total_seconds() / (60 * 60))
-    return project.uptime * 100 / time_elapsed_in_hours
+    from datetime import timedelta
+    up_time = timedelta()
+    cur_time = project.ctime
+    for hc_event in project.history:
+        if hc_event.ctime >= project.ctime:
+            if hc_event.status is Status.AVAILABLE:
+                up_time += hc_event.ctime - cur_time
+            cur_time = hc_event.ctime
+    total_time = cur_time - project.ctime
+    return up_time.seconds * 100 / total_time.seconds
 
 
 def write_to_markdown(projects):
