@@ -225,9 +225,6 @@ def entrypoint():
         json.dump(result, f, cls=ProjectJSONEncoder)
 
     global health_check_failed
-    # TODO: following line is only for testing, to be removed
-    health_check_failed = True
-
     print(health_check_failed)
 
 
