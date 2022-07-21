@@ -36,6 +36,7 @@ jobs:
         env:
           DOCSQA_ADMIN_TOKEN: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
       - name: Run Healthy Check
+        id: run-health-check
         run: |
           cd docsQA-status
           git config --local user.email "dev-bot@jina.ai"
@@ -51,3 +52,10 @@ jobs:
           git push --force origin gh-pages
         env:
           DOCSQA_ADMIN_TOKEN: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
+      - if: steps.run-health-check.outputs.HEALTH_CHECK_FAILED == 'true'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            :no_entry: DocsQA services health check failed
+
