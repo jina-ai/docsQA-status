@@ -27,6 +27,11 @@ jobs:
         with:
 #          ref: ${{ github.event.inputs.branch }}
           path: docsQA-status
+      - uses: actions/checkout@v3
+        with:
+          repository: jina-ai/docsQA-status-datahouse
+          token: ${{ secrets. DOCSQA_STATUS_TOKEN }}
+          path: docsQA-status-datahouse
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
@@ -42,14 +47,24 @@ jobs:
           git config --local user.email "dev-bot@jina.ai"
           git config --local user.name "Jina Dev Bot"
           git config pull.rebase true
+          cp ../docsQA-status-datahouse/data.json ./
           echo "::set-output name=HEALTH_CHECK_FAILED::$(python app.py | tail -n1)"
           git fetch
-          git add data.json && git commit -m "chore(docs): health check"
-          git push --force
+          # Update data in datahouse
+          cp data.json ../docsQA-status-datahouse/data.json.1
           git checkout -f gh-pages
           mv output.md README.md
           git add README.md && git commit -m "chore(docs): health check"
           git push --force origin gh-pages
+          cd ../docsQA-status-datahouse
+          git config --local user.email "dev-bot@jina.ai"
+          git config --local user.name "Jina Dev Bot"
+          git config pull.rebase true
+          git checkout -f main
+          git fetch
+          mv data.json.1 data.json
+          git add data.json && git commit -m "chore(docs): health check"
+          git push --force origin main
         env:
           DOCSQA_ADMIN_TOKEN: ${{ secrets.DOCSQA_ADMIN_TOKEN }}
       - if: steps.run-health-check.outputs.HEALTH_CHECK_FAILED == 'True'
