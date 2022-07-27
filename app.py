@@ -171,9 +171,9 @@ def write_to_markdown(projects):
         _matrix.append([
             p.repo,
             '✅' if p.status == Status.AVAILABLE else '⛔️',
-            p.last_utime.isoformat(),
-            p.last_dtime.isoformat() if p.last_dtime is not None else 'None',
-            f'{calculate_uptime(p)} (since {p.ctime})'
+            p.last_utime.replace(microsecond=0).isoformat(),
+            p.last_dtime.replace(microsecond=0).isoformat() if p.last_dtime is not None else 'None',
+            f'{calculate_uptime(p):.3f} (since {p.ctime})'
         ])
 
     table_header = 'DocsQA Status'
