@@ -47,7 +47,7 @@ jobs:
           git config --local user.email "dev-bot@jina.ai"
           git config --local user.name "Jina Dev Bot"
           git config pull.rebase true
-          cp ../docsQA-status-datahouse/data.json ./
+          [ -f "../docsQA-status-datahouse/data.json" ] && cp ../docsQA-status-datahouse/data.json ./
           echo "::set-output name=HEALTH_CHECK_FAILED::$(python app.py | tail -n1)"
           git fetch
           # Update data in datahouse
