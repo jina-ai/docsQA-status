@@ -11,6 +11,7 @@ from typing import List, Optional
 import aiohttp
 from aiohttp.client_exceptions import ClientConnectorError
 from pytablewriter import MarkdownTableWriter
+from jina import Client
 
 
 health_check_failed = False
@@ -45,7 +46,6 @@ class ProjectJSONEncoder(json.JSONEncoder):
             return super().default(obj)
 
         proj = asdict(obj)
-        print(proj['status'])
         proj['last_utime'] = proj['last_utime'] and proj['last_utime'].isoformat()
         proj['ctime'] = proj['ctime'] and proj['ctime'].isoformat()
         proj['last_dtime'] = proj['last_dtime'] and proj['last_dtime'].isoformat()
@@ -99,38 +99,16 @@ async def _health_check(project, session):
     header = {'Content-Type': 'application/json', 'accept': 'application/json'}
     payload = json.dumps({'data': [{'text': f'how to debug {project.repo}'}]})
     url = os.path.join(project.host, 'search')
-    try:
-        async with session.post(url, data=payload, headers=header) as resp:
-            project.last_utime = datetime.now()
-            if resp.status != 200:
-                project.status = Status.UNAVAILABLE
-                project.last_dtime = datetime.now()
-                print(f'{project.host} response status error: {resp.status}')
-                return project
-            # check the response has matches
-            json_body = await resp.json()
-            data = json_body.get('data', None)
-            if data is None:
-                project.status = Status.UNAVAILABLE
-                project.last_dtime = datetime.now()
-                print(f'{project.host} empty response data: {json_body}')
-                return project
-            matches = data[0].get('matches', None)
-            if matches is None:
-                print(f'{project.host} empty matches: {json_body}')
-            project.status = Status.AVAILABLE if matches else Status.UNAVAILABLE
-            return project
-    except ClientConnectorError as e:
-        print(f'failed to connect to {project.host}, {e}')
-        project.status = Status.UNAVAILABLE
-        project.last_dtime = datetime.now()
-    finally:
-        project.last_utime = datetime.now()
-        project.history.append(HealthCheckEvent(ctime=datetime.now(), status=project.status))
-        if project.status == Status.UNAVAILABLE:
-            global health_check_failed
-            health_check_failed = True
-        return project
+    client = Client(host=project.host)
+    success = await client.client._dry_run()
+    project.last_utime = datetime.now()
+    project.status = Status.AVAILABLE if success else Status.UNAVAILABLE
+    project.history.append(HealthCheckEvent(ctime=datetime.now(), status=project.status))
+    print(f'{project.host} status: {project.status}')
+    if not success:
+        global health_check_failed
+        health_check_failed = True
+    return project
 
 
 async def health_check(projects_list):
