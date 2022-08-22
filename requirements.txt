@@ -1,3 +1,4 @@
+jina
 pytablewriter
 aiohttp
 pytest
