@@ -98,3 +98,12 @@ def test_calculate_uptime_overflow():
     )
     result = calculate_uptime(project)
     assert result == 50
+
+@pytest.mark.parametrize('data_path', ['test_data.json'])
+def test_calculate_uptime(data_path):
+    with open(data_path, 'r') as f:
+            stored_projects = {
+                proj.repo: proj for proj in json.load(f, cls=ProjectJSONDecoder)
+            }
+    for key in stored_projects.keys():
+        assert calculate_uptime(stored_projects[key]) <= 100
