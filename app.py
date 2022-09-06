@@ -1,5 +1,6 @@
 import math
 from pathlib import Path
+from decimal import Decimal
 import asyncio
 import json
 import os
@@ -138,7 +139,7 @@ def calculate_uptime(project):
                 up_time += hc_event.ctime - cur_time
             cur_time = hc_event.ctime
     total_time = cur_time - project.ctime
-    return up_time.seconds * 100 / total_time.seconds if total_time.seconds > 0 else 0
+    return Decimal(up_time.total_seconds()) * 100 / Decimal(total_time.total_seconds()) if total_time.seconds > 0 else 0
 
 
 def write_to_markdown(projects):
