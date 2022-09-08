@@ -104,6 +104,7 @@ async def _health_check(project, session):
     success = await client.client._dry_run()
     project.last_utime = datetime.now()
     project.status = Status.AVAILABLE if success else Status.UNAVAILABLE
+    project.last_dtime = datetime.now() if not success else None
     project.history.append(HealthCheckEvent(ctime=datetime.now(), status=project.status))
     print(f'{project.host} status: {project.status}')
     if not success:
